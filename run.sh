@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 ORG=$1
 GIT_REPO=$2
 OES_GATE_IP=$3
@@ -33,13 +33,19 @@ if [ $RETURN_CODE -eq 0 ]; then
   echo -e "\n\n\nPushing test results to GitHub\n\n"
   # Push the output files to github for reference
   echo 'https://$ORG:$GIT_PASSWORD@github.com' > ~/.git-credentials
+  #git config --global user.email "vamsi.krishna@opsmx.io"
+  #git config --global user.name "vkvamsiopsmx"
+  #git config credential.helper store
+  #git add --all
+  #git commit -m "Upload execution reports"
+  #git remote set-url origin https://$ORG:$GIT_PASSWORD@github.com/$ORG/$GIT_REPO.git
+  #git push
+  git add --all
   git config --global user.email "vamsi.krishna@opsmx.io"
   git config --global user.name "vkvamsiopsmx"
-  git config credential.helper store
-  git add --all
-  git commit -m "Upload execution reports"
-  git remote set-url origin https://$ORG:$GIT_PASSWORD@github.com/$ORG/$GIT_REPO.git
-  git push
+  git commit -m "adding the reports back"
+  #git push origin master
+  git push https://vkvamsiopsmx:$git_pass@github.com/$1/$2.git --all
 
   ERRORS=$(cat logs-$EXECUTION_TIME/jmeter_console.txt | grep -e "Err:" | awk -F' ' '{print $14 $15}')
   for output in $ERRORS; do

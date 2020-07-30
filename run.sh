@@ -32,14 +32,16 @@ if [ $RETURN_CODE -eq 0 ]; then
   mv result.jtl jmeter.log jmeter_console.txt logs-$EXECUTION_TIME/
   echo -e "\n\n\nPushing test results to GitHub\n\n"
   # Push the output files to github for reference
+  echo 'https://$ORG:$GIT_PASSWORD@github.com' > ~/.git-credentials
   git config --global user.email "vamsi.krishna@opsmx.io"
   git config --global user.name "vkvamsiopsmx"
+  git config credential.helper store
   git add --all
   git commit -m "Upload execution reports"
-  git remote set-url origin https://$GIT_USER:$GIT_PASSWORD@github.com/$GIT_REPO.git
+  git remote set-url origin https://$ORG:$GIT_PASSWORD@github.com/$ORG/$GIT_REPO.git
   git push
 
-  ERRORS=$(cat jmeter_console.txt | grep -e "Err:" | awk -F' ' '{print $14 $15}')
+  ERRORS=$(cat logs-$EXECUTION_TIME/jmeter_console.txt | grep -e "Err:" | awk -F' ' '{print $14 $15}')
   for output in $ERRORS; do
     if [[ ! "$output" =~ ^Err:0$ ]]; then
       echo -e "Errors detected!!!; Breaking pipeline\n";
@@ -51,6 +53,6 @@ if [ $RETURN_CODE -eq 0 ]; then
 else
   ## Error while executing Jmeter script
   echo -e "\nError encountered while executing Jmeter script\n"
-  cat jmeter_console.txt
+  cat logs-$EXECUTION_TIME/jmeter_console.txt
   exit $RETURN_CODE
 fi

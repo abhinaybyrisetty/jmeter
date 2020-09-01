@@ -44,11 +44,11 @@ if [ $RETURN_CODE -eq 0 ]; then
   #git remote set-url origin https://$ORG:$GIT_PASSWORD@github.com/$ORG/$GIT_REPO.git
   #git push
   git add --all
-  git config --global user.email "yeshaswini.m@opsmx.io"
-  git config --global user.name "yeshaswiniOpsmx"
+  git config --global user.email "vamsi.krishna@opsmx.io"
+  git config --global user.name "vkvamsiopsmx"
   git commit -m "adding the reports back"
   #git push origin master
-  git push https://yeshaswiniOpsmx:$git_pass@github.com/$1/$2.git --all
+  git push https://vkvamsiopsmx:$git_pass@github.com/$1/$2.git --all
 
   ERRORS=$(cat /$GIT_REPO/logs-$EXECUTION_TIME/jmeter_console.txt | grep -e "Err:" | awk -F' ' '{print $14 $15}')
   for output in $ERRORS; do

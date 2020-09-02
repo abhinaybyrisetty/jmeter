@@ -7,6 +7,7 @@ PORT=$5
 SCHEME=$6
 USERNAME=$7
 PASSWORD=$8
+OPA_ENDPOINT=$9
 
 export EXECUTION_TIME=`date -u +"%Y%m%d%H%M"`
 
@@ -18,7 +19,7 @@ rm -rf result.jtl jmeter.log jmeter_console.txt reports/*
 cd jmeter-scripts
 for f in *.jmx ; do
 jmeter -n -Jgate-url=$OES_GATE_IP -Jui-url=$OES_UI_IP -Jport=$PORT -Jprotocol=$SCHEME -Jusername=$USERNAME \
-          -Jpassword=$PASSWORD -t $f -l /$GIT_REPO/result.jtl -j /$GIT_REPO/jmeter.log >> /$GIT_REPO/jmeter_console.txt 2>&1
+          -Jpassword=$PASSWORD -Jendpoint=$OPA_ENDPOINT -t $f -l /$GIT_REPO/result.jtl -j /$GIT_REPO/jmeter.log >> /$GIT_REPO/jmeter_console.txt 2>&1
 
 RETURN_CODE+=$?
 done

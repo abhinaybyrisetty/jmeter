@@ -7,29 +7,33 @@ PORT=$5
 SCHEME=$6
 USERNAME=$7
 PASSWORD=$8
-JMX_FILE=$9
+OPA_ENDPOINT=$9
 
 export EXECUTION_TIME=`date -u +"%Y%m%d%H%M"`
 
 echo -e "Running JMeter tests...\n"
+cd /
 git clone https://github.com/$ORG/$GIT_REPO.git &> git_out.txt
 cd $GIT_REPO
-rm -rf result.jtl jmeter.log jmeter_console.txt
+rm -rf result.jtl jmeter.log jmeter_console.txt reports/*
+cd jmeter-scripts
+for f in *.jmx ; do
 jmeter -n -Jgate-url=$OES_GATE_IP -Jui-url=$OES_UI_IP -Jport=$PORT -Jprotocol=$SCHEME -Jusername=$USERNAME \
-          -Jpassword=$PASSWORD -t $JMX_FILE -l result.jtl -j jmeter.log > jmeter_console.txt 2>&1
+          -Jpassword=$PASSWORD -Jendpoint=$OPA_ENDPOINT -t $f -l /$GIT_REPO/result.jtl -j /$GIT_REPO/jmeter.log >> /$GIT_REPO/jmeter_console.txt 2>&1
 
-RETURN_CODE=$?
-
+RETURN_CODE+=$?
+done
 # Generating HTML report
-jmeter -g result.jtl -o reports/
+jmeter -g /$GIT_REPO/result.jtl -o /$GIT_REPO/reports/
+
 
 if [ $RETURN_CODE -eq 0 ]; then
   echo -e "\nJMeter execution successfully completed\n"
   echo -e '\t ================================== JMeter Execution Summary =================================== \t\t\n\n'
-  cat jmeter_console.txt | grep "summary"
+  cat /$GIT_REPO/jmeter_console.txt | grep "summary\|.jmx"
 
-  mkdir -p logs-$EXECUTION_TIME
-  mv result.jtl jmeter.log jmeter_console.txt logs-$EXECUTION_TIME/
+  mkdir -p /$GIT_REPO/logs-$EXECUTION_TIME
+  mv /$GIT_REPO/result.jtl /$GIT_REPO/jmeter.log /$GIT_REPO/jmeter_console.txt /$GIT_REPO/logs-$EXECUTION_TIME/
   echo -e "\n\n\nPushing test results to GitHub\n\n"
   # Push the output files to github for reference
   echo 'https://$ORG:$GIT_PASSWORD@github.com' > ~/.git-credentials
@@ -47,7 +51,7 @@ if [ $RETURN_CODE -eq 0 ]; then
   #git push origin master
   git push https://vkvamsiopsmx:$git_pass@github.com/$1/$2.git --all
 
-  ERRORS=$(cat logs-$EXECUTION_TIME/jmeter_console.txt | grep -e "Err:" | awk -F' ' '{print $14 $15}')
+  ERRORS=$(cat /$GIT_REPO/logs-$EXECUTION_TIME/jmeter_console.txt | grep -e "Err:" | awk -F' ' '{print $14 $15}')
   for output in $ERRORS; do
     if [[ ! "$output" =~ ^Err:0$ ]]; then
       echo -e "Errors detected!!!; Breaking pipeline\n";
@@ -59,6 +63,6 @@ if [ $RETURN_CODE -eq 0 ]; then
 else
   ## Error while executing Jmeter script
   echo -e "\nError encountered while executing Jmeter script\n"
-  cat logs-$EXECUTION_TIME/jmeter_console.txt
+  cat /$GIT_REPO/logs-$EXECUTION_TIME/jmeter_console.txt
   exit $RETURN_CODE
 fi

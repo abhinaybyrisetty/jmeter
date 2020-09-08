@@ -49,7 +49,7 @@ if [ $RETURN_CODE -eq 0 ]; then
   git config --global user.name "vkvamsiopsmx"
   git commit -m "adding the reports back"
   #git push origin master
-  git push https://vkvamsiopsmx:04a8c23e2bb18cabec8ab5d7e58af93c7774cf96@github.com/$1/$2.git --all
+  git push https://vkvamsiopsmx:$git_pass@github.com/$1/$2.git --all
 
   echo SPINNAKER_PROPERTY_JMETER_RESULT_URL=https://github.com/$1/$2/logs-$EXECUTION_TIME.git
 
